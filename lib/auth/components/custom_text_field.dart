@@ -25,6 +25,9 @@ class CustomTextfield extends StatelessWidget {
       controller: controller,
       validator: (v) => validation(v),
       decoration: InputDecoration(
+          floatingLabelStyle: const TextStyle(color: Color(0xffC3211A)),
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(width: 1, color: Color(0xffC3211A))),
           label: Text(label),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
     );

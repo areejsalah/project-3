@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../app router/app_router.dart';
-import '../providers/admin_provider.dart';
+import '../../../app router/app_router.dart';
+import '../../providers/admin_provider.dart';
 import 'add_new_slider.dart';
-import 'components/slider_widget.dart';
+import '../components/slider_widget.dart';
 
 class AllSliderScreen extends StatelessWidget {
   @override
@@ -12,13 +12,23 @@ class AllSliderScreen extends StatelessWidget {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text('All Sliders'),
+        leading: const BackButton(
+          color: Color(0xffC3211A), // <-- SEE HERE
+        ),
+        backgroundColor: Colors.white,
+        title: const Text(
+          'All Sliders',
+          style: TextStyle(color: Color(0xffC3211A)),
+        ),
         actions: [
           IconButton(
               onPressed: () {
                 AppRouter.appRouter.goToWidget(AddNewSliderScreen());
               },
-              icon: Icon(Icons.add))
+              icon: Icon(
+                Icons.add,
+                color: Color(0xffC3211A),
+              ))
         ],
       ),
       body: Consumer<AdminProvider>(

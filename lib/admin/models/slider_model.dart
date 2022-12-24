@@ -1,12 +1,13 @@
 class Slider {
   String? id;
-  String? imageUrl;
-  String? title;
-  String? url;
+  String imageUrl;
+  String title;
+  String url;
   Slider({
-    this.imageUrl,
-    this.title,
-    this.url,
+    this.id,
+    required this.imageUrl,
+    required this.title,
+    required this.url,
   });
 
   Map<String, dynamic> toMap() {

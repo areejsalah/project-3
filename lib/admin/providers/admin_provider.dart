@@ -5,12 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_application_1/admin/models/category_model.dart';
 import 'package:flutter_application_1/admin/models/product_model.dart';
 import 'package:flutter_application_1/admin/models/slider_model.dart';
+import 'package:flutter_application_1/admin/views/screens/edit_product.dart';
+import 'package:flutter_application_1/admin/views/screens/edit_slider.dart';
 import 'package:flutter_application_1/app%20router/app_router.dart';
 import 'package:flutter_application_1/data_repositores/firestore_helper.dart';
 import 'package:flutter_application_1/data_repositores/storage_helper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:string_validator/string_validator.dart';
 
-import '../views/edit_category.dart';
+import '../views/screens/edit_category.dart';
 
 class AdminProvider extends ChangeNotifier {
   AdminProvider() {
@@ -23,6 +26,14 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
+  String? phoneValidation(String content) {
+    if (!(isNumeric(content))) {
+      return 'In Correct Number Syntax';
+    }
+    return null;
+  }
+
+  PageController homePageController = PageController();
   File? imageFile;
   TextEditingController catNameArController = TextEditingController();
   TextEditingController catNameEnController = TextEditingController();
@@ -74,6 +85,7 @@ class AdminProvider extends ChangeNotifier {
   List<Category>? allCategories;
   List<Product>? allProducts;
   List<Slider>? allSliders;
+  List<Object> emptySliders = [];
   getAllCategories() async {
     allCategories = await FirestoreHelper.firestoreHelper.getAllCategories();
     notifyListeners();
@@ -134,7 +146,17 @@ class AdminProvider extends ChangeNotifier {
   TextEditingController productNameController = TextEditingController();
   TextEditingController productDescriptionController = TextEditingController();
   TextEditingController productPriceController = TextEditingController();
-  GlobalKey<FormState> addProductKey = GlobalKey();
+  GlobalKey<FormState> addProductKey = GlobalKey<FormState>();
+  GlobalKey<FormState> addSliderKey = GlobalKey<FormState>();
+  pickImageForProduct() async {
+    XFile? pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      imageFile = File(pickedFile.path);
+      notifyListeners();
+    }
+  }
+
   addNewProduct(String catId) async {
     if (imageFile != null) {
       if (addProductKey.currentState!.validate()) {
@@ -181,6 +203,64 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  deleteProduct(Product product) async {
+    AppRouter.appRouter.showLoadingDialoug();
+    bool deleteSuccess =
+        await FirestoreHelper.firestoreHelper.deleteProduct(product.id!);
+    if (deleteSuccess) {
+      allProducts!.remove(product);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialoug();
+  }
+
+  updateProduct(Product product) async {
+    AppRouter.appRouter.showLoadingDialoug();
+    if (imageFile != null) {
+      String imageUrl = await StrorageHelper.strorageHelper
+          .uploadNewImage("products_images", imageFile!);
+      product.imageUrl = imageUrl;
+    }
+    Product newProduct = Product(
+        id: product.id,
+        imageUrl: product.imageUrl,
+        catId: product.catId,
+        description: productDescriptionController.text.isEmpty
+            ? product.description
+            : productDescriptionController.text,
+        name: productNameController.text.isEmpty
+            ? product.name
+            : productNameController.text,
+        price: productPriceController.text.isEmpty
+            ? product.price
+            : productPriceController.text);
+
+    bool? isUpdated =
+        await FirestoreHelper.firestoreHelper.updateProduct(newProduct);
+
+    if (isUpdated != null && isUpdated) {
+      int index = allProducts!.indexOf(product);
+      allProducts![index] = newProduct;
+      imageFile = null;
+      productDescriptionController.clear();
+      productNameController.clear();
+      productPriceController.clear();
+
+      notifyListeners();
+      AppRouter.appRouter.hideDialoug();
+      AppRouter.appRouter.hideDialoug();
+    }
+  }
+
+  goToEditProductPage(Product product) {
+    productNameController.text = product.name;
+    productDescriptionController.text = product.description;
+    productPriceController.text = product.price;
+
+    AppRouter.appRouter.goToWidget(EditProduct(product));
+  }
+
+  //slider methods
   getAllSliders() async {
     allSliders = await FirestoreHelper.firestoreHelper.getAllSliders();
   }
@@ -214,5 +294,57 @@ class AdminProvider extends ChangeNotifier {
       AppRouter.appRouter
           .showCustomDialoug('Error', 'You have to pick image first');
     }
+  }
+
+  deleteSlider(Slider slider) async {
+    AppRouter.appRouter.showLoadingDialoug();
+    bool deleteSuccess =
+        await FirestoreHelper.firestoreHelper.deleteSlider(slider.id!);
+    if (deleteSuccess) {
+      allSliders!.remove(slider);
+      notifyListeners();
+    }
+    AppRouter.appRouter.hideDialoug();
+  }
+
+  updateSlider(Slider slider) async {
+    AppRouter.appRouter.showLoadingDialoug();
+    if (imageFile != null) {
+      String imageUrl = await StrorageHelper.strorageHelper
+          .uploadNewImage("products_images", imageFile!);
+      slider.imageUrl = imageUrl;
+    }
+
+    Slider newSlider = Slider(
+        id: slider.id,
+        imageUrl: slider.imageUrl,
+        title: sliderTitleController.text.isEmpty
+            ? slider.title
+            : sliderTitleController.text,
+        url: sliderUrlController.text.isEmpty
+            ? slider.url
+            : sliderUrlController.text);
+
+    bool? isUpdated =
+        await FirestoreHelper.firestoreHelper.updateSlider(slider);
+
+    if (isUpdated != null && isUpdated) {
+      int index = allSliders!.indexOf(slider);
+      allSliders![index] = newSlider;
+      imageFile = null;
+      sliderTitleController.clear();
+      sliderUrlController.clear();
+
+      notifyListeners();
+      AppRouter.appRouter.hideDialoug();
+      AppRouter.appRouter.hideDialoug();
+    }
+  }
+
+  goToEditSliderPage(Slider slider) {
+    sliderTitleController.text = slider.title;
+    sliderUrlController.text = slider.url;
+
+    AppRouter.appRouter.goToWidget(EditSlider(slider));
   }
 }

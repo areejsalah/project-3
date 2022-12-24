@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/product_model.dart';
+import '../../providers/admin_provider.dart';
 
 class ProductWidget extends StatelessWidget {
   Product product;
@@ -8,67 +10,65 @@ class ProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        margin: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.black, width: 2)),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
-                  child: SizedBox(
-                      width: double.infinity,
-                      height: 170,
-                      child: Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                      )),
-                ),
-                Positioned(
-                    right: 15,
-                    top: 10,
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          child: IconButton(
-                              onPressed: () {}, icon: Icon(Icons.delete)),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          child: IconButton(
-                              onPressed: () {}, icon: Icon(Icons.edit)),
-                        ),
-                      ],
-                    ))
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Product Name' + ': ' + product.name,
-                    ),
-                    Text(
-                      'Product Price' + ': ' + product.price,
-                    ),
-                  ]),
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        children: [
+          SizedBox(
+              height: 150,
+              width: double.infinity,
+              child: Image.network(
+                product.imageUrl,
+                fit: BoxFit.cover,
+              )),
+          const SizedBox(
+            width: 20,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(product.name),
+              Text(product.price),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        onPressed: () {
+                          Provider.of<AdminProvider>(context, listen: false)
+                              .deleteProduct(product);
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Color(0xffC3211A),
+                        )),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        onPressed: () {
+                          Provider.of<AdminProvider>(context, listen: false)
+                              .goToEditProductPage(product);
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Color(0xffC3211A),
+                        )),
+                  ),
+                ],
+              )
+            ],
+          )
+        ],
       ),
     );
   }

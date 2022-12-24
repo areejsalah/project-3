@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/app%20router/app_router.dart';
+import 'package:flutter_application_1/auth/screens/sign_up_screen.dart';
+import 'package:flutter_application_1/customer/views/screens/custom_main_screen.dart';
 import 'package:flutter_application_1/data_repositores/auth_helper.dart';
 import 'package:flutter_application_1/auth/screens/main_screen.dart';
 import 'package:flutter_application_1/auth/screens/sign_in_screen.dart';
 import 'package:flutter_application_1/data_repositores/firestore_helper.dart';
 import 'package:flutter_application_1/data_repositores/storage_helper.dart';
-import 'package:flutter_application_1/models/app_user.dart';
+import 'package:flutter_application_1/auth/models/app_user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:string_validator/string_validator.dart';
 
@@ -75,7 +77,7 @@ class AuthProvider extends ChangeNotifier {
         loggedUser =
             await FirestoreHelper.firestoreHelper.getUserFromFirestore(userId);
         notifyListeners();
-        AppRouter.appRouter.goToWidgetAndReplace(MainScreen());
+        AppRouter.appRouter.goToWidgetAndReplace(CustomerMainScreen());
       }
     }
   }
@@ -91,22 +93,24 @@ class AuthProvider extends ChangeNotifier {
             email: registerEmailController.text,
             userName: nameController.text,
             phoneNumber: phoneNumberController.text));
+        AppRouter.appRouter.goToWidgetAndReplace(CustomerMainScreen());
       }
     }
   }
 
   getUser(String id) async {
     loggedUser = await FirestoreHelper.firestoreHelper.getUserFromFirestore(id);
-    loggedUser!.id = id;
+    loggedUser?.id = id;
     notifyListeners();
   }
 
   checkUser() async {
     await Future.delayed(const Duration(seconds: 3));
     String? userId = AuthHelper.authHelper.checkUser();
+
     if (userId != null) {
       getUser(userId);
-      AppRouter.appRouter.goToWidgetAndReplace(MainScreen());
+      AppRouter.appRouter.goToWidgetAndReplace(CustomerMainScreen());
     } else {
       AppRouter.appRouter.goToWidgetAndReplace(SignInScreen());
     }

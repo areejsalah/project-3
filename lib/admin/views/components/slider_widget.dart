@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Slider;
+import 'package:provider/provider.dart';
 
 import '../../models/slider_model.dart';
+import '../../providers/admin_provider.dart';
 
 class SliderWidget extends StatelessWidget {
   Slider slider;
@@ -9,62 +11,62 @@ class SliderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.black, width: 2)),
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
-          Stack(
+          SizedBox(
+              height: 150,
+              width: double.infinity,
+              child: Image.network(
+                slider.imageUrl,
+                fit: BoxFit.cover,
+              )),
+          const SizedBox(
+            width: 20,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
-                child: SizedBox(
-                    width: double.infinity,
-                    height: 170,
-                    child: Image.network(
-                      slider.imageUrl!,
-                      fit: BoxFit.cover,
-                    )),
-              ),
-              Positioned(
-                  right: 15,
-                  top: 10,
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                            onPressed: () {}, icon: Icon(Icons.delete)),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                            onPressed: () {}, icon: Icon(Icons.edit)),
-                      ),
-                    ],
-                  ))
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.all(10),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              Text(slider.title),
+              Row(
                 children: [
-                  Text(
-                    'Slider Title' + ': ' + slider.title!,
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        onPressed: () {
+                          Provider.of<AdminProvider>(context, listen: false)
+                              .deleteSlider(slider);
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Color(0xffC3211A),
+                        )),
                   ),
-                  Text(
-                    'Slider Url' + ': ' + slider.url!,
+                  const SizedBox(
+                    width: 10,
                   ),
-                ]),
-          ),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        onPressed: () {
+                          Provider.of<AdminProvider>(context, listen: false)
+                              .goToEditSliderPage(slider);
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Color(0xffC3211A),
+                        )),
+                  ),
+                ],
+              )
+            ],
+          )
         ],
       ),
     );
